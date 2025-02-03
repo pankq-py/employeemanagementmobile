@@ -99,7 +99,7 @@ const EmployeeListScreen = ({ navigation }) => {
         </TouchableOpacity>
         <View style={[styles.viewSwitch, theme === "dark" ? styles.darkHeader : styles.lightHeader]}>
           <TouchableOpacity onPress={() => setIsListView((prev) => !prev)}>
-            <Icon name={isListView ? "grid-view" : "list"} size={35} color="#fff" />
+            <Icon name={isListView ? "grid-view" : "list"} size={30} color="#fff" />
           </TouchableOpacity>
         </View>
       </View>
@@ -141,6 +141,7 @@ const EmployeeListScreen = ({ navigation }) => {
       ) : (
         <View style={{ flex: 1, gap: 25 }}>
           <FlatList
+            showsVerticalScrollIndicator={false}
             data={filteredEmployees}
             keyExtractor={(item) => item._id}
             numColumns={2}
@@ -183,7 +184,7 @@ const styles = StyleSheet.create({
   },
   headerButtons: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 2, borderRadius: 5, marginTop: 5 },
-  viewSwitch: { justifyContent: "center", alignItems: "center", padding: 10, borderRadius: 10 },
+  viewSwitch: { justifyContent: "center", alignItems: "center", padding: 9, borderRadius: 10 },
   lightHeader: {
     backgroundColor: "#2980b9",
   },
