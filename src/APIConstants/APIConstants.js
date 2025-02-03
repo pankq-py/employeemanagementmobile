@@ -1,4 +1,4 @@
-export const baseUrl = "https://crudcrud.com/api/7ef71457dccc4ecca5733fb44ec3e0f2";
+export const baseUrl = "https://crudcrud.com/api/c7984ee6ae194a5c98c1622d7c708362";
 
 export const Url = {
     getEmployees: `${baseUrl}/employees`,
