@@ -112,22 +112,26 @@ const EmployeeFormScreen = ({ route, navigation }) => {
     const object = { ...employeeData, salary: Number(salary) }
     setIsLoading(true)
     try {
-      await fetch(url, {
+      const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(object),
       })
-
-      console.log(`Employee ${employee ? "updated" : "added"} successfully!`, object)
-
-      setModalData({
-        icon: "check",
-        message: `Employee ${employee ? "updated" : "added"} successfully!`
-      })
-      setModalVisible(true)
-      // navigation.goBack()
+      console.log(`Employee ${employee ? "updated" : "added"} successfully!`, response)
+      if (response.ok) {
+        setModalData({
+          icon: "check",
+          message: `Employee ${employee ? "updated" : "added"} successfully!`
+        })
+        setModalVisible(true)
+        // navigation.goBack()
+      } else {
+        console.log("Error saving employee:", response)
+        setModalData({ icon: "error", message: "Failed to save employee. Please try again!" })
+        setModalVisible(true)
+      }
     } catch (error) {
-      console.error("Error saving employee:", error)
+      console.log("Error saving employee:", error)
       setModalData({ icon: "error", message: "Failed to save employee. Please try again!" })
       setModalVisible(true)
     } finally {
@@ -137,7 +141,11 @@ const EmployeeFormScreen = ({ route, navigation }) => {
 
   const handleModalClose = () => {
     setModalVisible(false)
-    modalData.icon == "check" && navigation.navigate('EmployeeList')
+    if (modalData.icon == "check") {
+      navigation.navigate('EmployeeList')
+    } else {
+      // navigation.goBack()
+    };
   }
 
   return (

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import { Url } from "../APIConstants/APIConstants";
 import { commonStyles } from "../styles/commonStyles";
 import CustomModal from "../components/CustomModal";
 import Loader from "../components/Loader";
+import { useFocusEffect } from "@react-navigation/native";
 
 const EmployeeListScreen = ({ navigation }) => {
   const theme = useColorScheme();
@@ -23,6 +24,7 @@ const EmployeeListScreen = ({ navigation }) => {
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [selectedId, setSelectedId] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
+  const [errorModalVisible, setErrorModalVisible] = useState(false);
   const [isListView, setIsListView] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -33,20 +35,26 @@ const EmployeeListScreen = ({ navigation }) => {
 
   let searchTimeout
 
-  useEffect(() => {
-    fetchEmployees()
-  }, [])
+  useFocusEffect(
+    useCallback(() => {
+      fetchEmployees();
+    }, [])
+  )
 
   const fetchEmployees = async () => {
     setIsLoading(true);
     try {
       const response = await fetch(Url.getEmployees)
       const data = await response.json()
+      if (!response.ok) {
+        throw new Error("Failed to fetch employees")
+      }
       setEmployees(data)
       setFilteredEmployees(data)
     } catch (error) {
       setModalData({ icon: "error", message: "Failed to fetch employees. Please try again!" })
-      console.error("Error fetching employees:", error)
+      setErrorModalVisible(true)
+      console.log("Error fetching employees:", error)
     } finally {
       setIsLoading(false)
     }
@@ -67,25 +75,37 @@ const EmployeeListScreen = ({ navigation }) => {
 
   const handleDeletePress = (id) => {
     setSelectedId(id)
-    setModalVisible(true)
     setModalData({
       icon: "delete",
       message: "Are you sure you want to delete?",
     })
+    setModalVisible(true)
   }
 
   const deleteEmployee = async () => {
     setIsLoading(true)
     try {
-      await fetch(Url.getEmployeeById.replace("{employeeId}", selectedId), {
+      const response = await fetch(Url.getEmployeeById.replace("{employeeId}", selectedId), {
         method: "DELETE",
       })
-      setEmployees((prev) => prev.filter((emp) => emp._id !== selectedId))
-      setFilteredEmployees((prev) => prev.filter((emp) => emp._id !== selectedId))
-      setModalVisible(false)
+      console.log("Employee deleted successfully!", response)
+      if (response.ok) {
+        setEmployees((prev) => prev.filter((emp) => emp._id !== selectedId))
+        setFilteredEmployees((prev) => prev.filter((emp) => emp._id !== selectedId))
+        setModalVisible(false)
+        setModalData({ icon: "check", message: "Employee deleted successfully!" })
+        setErrorModalVisible(true)
+      } else {
+        console.log("Error deleting employee:", response)
+        setModalVisible(false)
+        setModalData({ icon: "warning", message: "Failed to delete employee. Please try again!" })
+        setErrorModalVisible(true)
+      }
     } catch (error) {
-      setModalData({ icon: "delete", message: "Failed to delete employee. Please try again!" })
-      console.error("Error deleting employee:", error)
+      setModalVisible(false)
+      setModalData({ icon: "warning", message: "Failed to delete employee. Please try again!" })
+      setErrorModalVisible(true)
+      console.log("Error deleting employee:", error)
     } finally {
       setIsLoading(false)
     }
@@ -141,7 +161,7 @@ const EmployeeListScreen = ({ navigation }) => {
       ) : (
         <View style={{ flex: 1, gap: 25 }}>
           <FlatList
-            showsVerticalScrollIndicator={false} 
+            showsVerticalScrollIndicator={false}
             data={filteredEmployees}
             keyExtractor={(item) => item._id}
             numColumns={2}
@@ -170,6 +190,12 @@ const EmployeeListScreen = ({ navigation }) => {
         title={modalData?.message}
         yesButtonFunction={deleteEmployee}
       />
+      <CustomModal
+        visible={errorModalVisible}
+        icon={modalData?.icon}
+        onClose={() => setErrorModalVisible(false)}
+        title={modalData?.message}
+      />
     </SafeAreaView>
   )
 }
@@ -184,7 +210,7 @@ const styles = StyleSheet.create({
   },
   headerButtons: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 2, borderRadius: 5, marginTop: 5 },
-  viewSwitch: { justifyContent: "center", alignItems: "center", padding: 9, borderRadius: 10 }, 
+  viewSwitch: { justifyContent: "center", alignItems: "center", padding: 9, borderRadius: 10 },
   lightHeader: {
     backgroundColor: "#2980b9",
   },

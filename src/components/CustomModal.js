@@ -62,6 +62,7 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: "bold",
         marginBlock: 10,
+        textAlign: "center",
     },
     modalTextLight: {
         color: "#000",
