@@ -10,6 +10,8 @@ import {
   Modal,
   useColorScheme,
   Image,
+  Pressable,
+  RefreshControl,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { Url } from "../APIConstants/APIConstants";
@@ -156,6 +158,14 @@ const EmployeeListScreen = ({ navigation }) => {
                 </View>
               </View>
             )}
+            refreshControl={
+              <RefreshControl
+                refreshing={isLoading}
+                onRefresh={fetchEmployees}
+                colors={["#3498db"]}
+                progressBackgroundColor={theme === "dark" ? "#1a1a2e" : "#f8f9fa"}
+              />
+            }
           />
         </View>
       ) : (
@@ -166,19 +176,29 @@ const EmployeeListScreen = ({ navigation }) => {
             keyExtractor={(item) => item._id}
             numColumns={2}
             renderItem={({ item }) => (
-              <View style={[styles.gridItem, theme === "dark" ? styles.cardDark : styles.cardLight]}>
-                <View style={[styles.avatarContainer, theme === "dark" ? styles.cardDark : styles.cardLight]}>
-                  <Image style={styles.avatar} source={{ uri: `https://avatar.iran.liara.run/public/boy?username=${item.name.replaceAll(" ", "") || "default"}.png` }} resizeMode="contain" />
+              <Pressable style={{ flex: 1 }} onPress={() => navigation.navigate("EmployeeDetail", { employee: item })}>
+                <View style={[styles.gridItem, theme === "dark" ? styles.cardDark : styles.cardLight]}>
+                  <View style={[styles.avatarContainer, theme === "dark" ? styles.cardDark : styles.cardLight]}>
+                    <Image style={styles.avatar} source={{ uri: `https://avatar.iran.liara.run/public/boy?username=${item.name.replaceAll(" ", "") || "default"}.png` }} resizeMode="contain" />
+                  </View>
+                  <Text style={[styles.name, theme === "dark" ? styles.textDark : styles.textLight]}>{item.name}</Text>
+                  <Text style={styles.label}>{item.position}</Text>
+                  <View style={styles.actionsGrid}>
+                    <Icon style={styles.editIcon} name="edit" size={24} color="#3498db" onPress={() => navigation.navigate("EmployeeForm", { employee: item })} />
+                    <Icon style={styles.viewIcon} name="visibility" size={24} color="#2ecc71" onPress={() => navigation.navigate("EmployeeDetail", { employee: item })} />
+                    <Icon style={styles.deleteIcon} name="delete" size={24} color="#e74c3c" onPress={() => handleDeletePress(item._id)} />
+                  </View>
                 </View>
-                <Text style={[styles.name, theme === "dark" ? styles.textDark : styles.textLight]}>{item.name}</Text>
-                <Text style={styles.label}>{item.position}</Text>
-                <View style={styles.actionsGrid}>
-                  <Icon style={styles.editIcon} name="edit" size={24} color="#3498db" onPress={() => navigation.navigate("EmployeeForm", { employee: item })} />
-                  <Icon style={styles.viewIcon} name="visibility" size={24} color="#2ecc71" onPress={() => navigation.navigate("EmployeeDetail", { employee: item })} />
-                  <Icon style={styles.deleteIcon} name="delete" size={24} color="#e74c3c" onPress={() => handleDeletePress(item._id)} />
-                </View>
-              </View>
+              </Pressable>
             )}
+            refreshControl={
+              <RefreshControl
+                refreshing={isLoading}
+                onRefresh={fetchEmployees}
+                colors={["#3498db"]}
+                progressBackgroundColor={theme === "dark" ? "#1a1a2e" : "#f8f9fa"}
+              />
+            }
           />
         </View>
       )}

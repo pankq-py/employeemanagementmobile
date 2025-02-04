@@ -26,6 +26,8 @@ const App = () => {
               backgroundColor: theme === "dark" ? "#34495e" : "#2980b9",
             },
             headerTintColor: "#fff",
+            headerLeft: () => null,
+            gestureEnabled: false,
           }}
         />
         <Stack.Screen
